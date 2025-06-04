@@ -1,6 +1,6 @@
 import axiosInstance from "./axiosInstance";
 import { Task } from "@/types/task";
-export const BASE_URL = 'http://localhost:4000';
+export const BASE_URL = 'https://task-management-backend-1.vercel.app';
 import {
   SignInRoute,
   ResisterRoute,

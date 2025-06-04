@@ -2,12 +2,9 @@ import axios from "axios";
 import { getSession } from "next-auth/react";
 // Create an instance of axios with baseURL
 const axiosInstance = axios.create({
-  baseURL: "http://172.20.10.3:4000", 
+  baseURL: "https://task-management-backend-1.vercel.app", 
   timeout: 10000, // 10 seconds
 });
-
-// Get the current time zone (safe on both server and client)
-// const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 // Add request interceptor
 axiosInstance.interceptors.request.use(
