@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const PUBLIC_PATHS = ["/sign-in", "/sign-up", "/api/auth"]; // pages that don't need auth
+const PUBLIC_PATHS = ["/login", "/sign-up", "/api/auth", "/api/auth/error"]; // pages that don't need auth
 
 export async function middleware(req: NextRequest) {
   // Get token (session) from NextAuth
@@ -11,14 +11,14 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // 1. If user is logged in and tries to access login or signup, redirect to "/"
-  if (token && (pathname === "/sign-in" || pathname === "/sign-up")) {
+  if (token && (pathname === "/login" || pathname === "/sign-up")) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
   // 2. If user is NOT logged in and tries to access a protected route (not public path)
   if (!token && !PUBLIC_PATHS.some(path => pathname.startsWith(path))) {
     // redirect to login page
-    return NextResponse.redirect(new URL("/sign-in", req.url));
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
   // 3. Otherwise continue

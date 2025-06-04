@@ -95,7 +95,7 @@ export default function SignupPage() {
         const signInRes = await signIn("credentials", {
           email,
           password,
-          redirect: true,
+          redirect: false,
         });
   
         if (signInRes?.error) {
@@ -251,7 +251,7 @@ export default function SignupPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
         >
-          <Link className="underline text-xs" href={"/sign-in"}>
+          <Link className="underline text-xs" href={"/login"}>
             Log-In
           </Link>
         </motion.div>

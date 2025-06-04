@@ -36,9 +36,9 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormInputs) => {
     setIsLoading(true);
     const res = await signIn("credentials", {
-      redirect: false,
       email: data.email,
       password: data.password,
+      redirect: false,
     });
 
     setIsLoading(false);
@@ -133,7 +133,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               placeholder="Your email"
-              className={`w-full px-4 py-2 mb-1 rounded-md border ${
+              className={`w-full px-4 py-2 mb-4 mb-1 rounded-md border ${
                 errors.email ? "border-red-500" : "border-gray-300"
               } focus:outline-none focus:ring-2 focus:ring-yellow-400`}
               {...register("email")}

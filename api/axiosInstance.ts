@@ -2,9 +2,12 @@ import axios from "axios";
 import { getSession } from "next-auth/react";
 // Create an instance of axios with baseURL
 const axiosInstance = axios.create({
-  baseURL: "https://task-management-backend-1.vercel.app", 
+  baseURL: "http://localhost:4000", 
   timeout: 10000, // 10 seconds
 });
+
+// Get the current time zone (safe on both server and client)
+// const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 // Add request interceptor
 axiosInstance.interceptors.request.use(
@@ -42,7 +45,7 @@ axiosInstance.interceptors.response.use(
         // Get the current path
         const currentPath = window.location.pathname + window.location.search;
         // Redirect to sign-in with the current path as callbackUrl
-        window.location.href = `/sign-in?callbackUrl=${encodeURIComponent(currentPath)}`;
+        window.location.href = `/login?callbackUrl=${encodeURIComponent(currentPath)}`;
       }
     }
     return Promise.reject(error);
