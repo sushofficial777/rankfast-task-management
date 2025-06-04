@@ -2,7 +2,7 @@ import axios from "axios";
 import { getSession } from "next-auth/react";
 // Create an instance of axios with baseURL
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:4000", 
+  baseURL: "https://task-management-backend-1.vercel.app", 
   timeout: 10000, // 10 seconds
 });
 
