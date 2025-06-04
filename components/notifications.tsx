@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Loader from "@/components/spinner"
 import type { Task } from "@/types/task";
 import { toast } from "sonner"
-import { getAllNotificationMethod, markNotificationAsReadMethod } from "@/api/apiService"
+import { getAllNotificationMethod, markNotificationAsReadMethod } from "@/apis/apiService"
 
 
 interface NotificationsProps {

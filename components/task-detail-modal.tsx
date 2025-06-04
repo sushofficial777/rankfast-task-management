@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { Task } from "@/types/task"
 import { Slider } from "@/components/ui/slider"
-import { updateTaskMethod, getTaskByIdMethod } from "@/api/apiService";
+import { updateTaskMethod, getTaskByIdMethod } from "@/apis/apiService";
 import { toast } from "sonner";
 import { getTimeSpentPercentage } from "@/lib/common.utils"
 import { TASK_STAGE_LABELS } from "@/lib/data/constents"

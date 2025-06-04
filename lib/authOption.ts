@@ -1,4 +1,4 @@
-import { SignInMethod } from "@/api/apiService";
+import { SignInMethod } from "@/apis/apiService";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 

@@ -10,7 +10,7 @@ import moment from "moment";
 import DatePicker from "@/components/elements/custom/DatePicker";
 import GenericSelect from "@/components/elements/custom/Select";
 import { hourOptions } from "@/lib/common.utils";
-import { updateTaskMethod, getAllUsersForSelectMethod } from "@/api/apiService";
+import { updateTaskMethod, getAllUsersForSelectMethod } from "@/apis/apiService";
 import { toast } from "sonner";
 import type { Task } from "@/types/task";
 

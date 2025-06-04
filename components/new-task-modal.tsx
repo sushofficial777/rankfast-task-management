@@ -11,10 +11,10 @@ import DatePicker from "@/components/elements/custom/DatePicker"
 import moment from "moment";
 import GenericSelect from "@/components/elements/custom/Select";
 import { hourOptions } from "@/lib/common.utils"
-import { createTask } from "@/api/apiService"
+import { createTask } from "@/apis/apiService"
 import { toast } from "sonner";
 
-import { getAllUsersForSelectMethod } from "@/api/apiService";
+import { getAllUsersForSelectMethod } from "@/apis/apiService";
 
 interface NewTaskModalProps {
   onClose: () => void

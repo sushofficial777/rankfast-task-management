@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { AvatarImage } from "@/components/ui/avatar"
 import { useSession } from "next-auth/react"
 import { Avatar } from "@radix-ui/react-avatar"
-import { getUnreadNotificationMethod } from "@/api/apiService";
+import { getUnreadNotificationMethod } from "@/apis/apiService";
 import { toast } from "sonner"
 
 interface HeaderProps {

@@ -9,7 +9,7 @@ import { Pencil, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { uploadImageToSupabase } from "@/lib/utils/uploadImageToSupabase";
-import { RegisterMethod } from "@/api/apiService";
+import { RegisterMethod } from "@/apis/apiService";
 import { toast } from "sonner";
 import Massages from "@/lib/data/messages";
 import { signIn } from "next-auth/react";

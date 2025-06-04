@@ -13,9 +13,9 @@ import { NewTaskModal } from "@/components/new-task-modal"
 import { TaskDetailModal } from "@/components/task-detail-modal"
 import type { Task } from "@/types/task"
 import type { Blog } from "@/types/blog"
-import { getAllTasks, } from "@/api/apiService"
+import { getAllTasks, } from "@/apis/apiService"
 import { toast } from "sonner"
-import { deleteTaskMethod } from "@/api/apiService"
+import { deleteTaskMethod } from "@/apis/apiService"
 
 
 const initialBlogs: Blog[] = [
