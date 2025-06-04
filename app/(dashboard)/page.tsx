@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
@@ -13,74 +13,10 @@ import { NewTaskModal } from "@/components/new-task-modal"
 import { TaskDetailModal } from "@/components/task-detail-modal"
 import type { Task } from "@/types/task"
 import type { Blog } from "@/types/blog"
+import { getAllTasks, } from "@/api/apiService"
+import { toast } from "sonner"
+import { deleteTaskMethod } from "@/api/apiService"
 
-const initialTasks: Task[] = [
-  {
-    id: "1",
-    title: "Finish monthly reporting",
-    dueDate: "2022-03-03",
-    priority: "High",
-    stage: "In progress",
-    team: "Marketing O2",
-    assignee: { name: "John Doe", avatar: "/avatar1.png" },
-    completed: false,
-    description: "",
-    tags: [],
-    notifications: [],
-  },
-  {
-    id: "2",
-    title: "Contract signing",
-    dueDate: "2022-03-03",
-    priority: "Medium",
-    stage: "In progress",
-    team: "Operations",
-    assignee: { name: "Jane Smith", avatar: "/avatar1.png" },
-    completed: false,
-    description: "",
-    tags: [],
-    notifications: [],
-  },
-  {
-    id: "3",
-    title: "Market overview keynote",
-    dueDate: "2022-03-04",
-    priority: "High",
-    stage: "In progress",
-    team: "Customer Care",
-    assignee: { name: "Mike Johnson", avatar: "/avatar1.png" },
-    completed: false,
-    description: "",
-    tags: [],
-    notifications: [],
-  },
-  {
-    id: "4",
-    title: "Brand proposal",
-    dueDate: "2022-03-05",
-    priority: "High",
-    stage: "Not started",
-    team: "Marketing O2",
-    assignee: { name: "Sarah Wilson", avatar: "/avatar1.png" },
-    completed: false,
-    description: "",
-    tags: [],
-    notifications: [],
-  },
-  {
-    id: "5",
-    title: "Social media review",
-    dueDate: "2022-03-06",
-    priority: "Medium",
-    stage: "In progress",
-    team: "Operations",
-    assignee: { name: "Tom Brown", avatar: "/avatar1.png" },
-    completed: false,
-    description: "",
-    tags: [],
-    notifications: [],
-  },
-]
 
 const initialBlogs: Blog[] = [
   {
@@ -109,27 +45,57 @@ const initialBlogs: Blog[] = [
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<"dashboard" | "tasks" | "notifications" | "blogs">("dashboard")
-  const [tasks, setTasks] = useState<Task[]>(initialTasks)
+  const [tasks, setTasks] = useState<Task[]>([])
   const [blogs, setBlogs] = useState<Blog[]>(initialBlogs)
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null)
   const [isCreatingBlog, setIsCreatingBlog] = useState(false)
 
-  const addTask = (newTask: Omit<Task, "id">) => {
-    const task: Task = {
-      ...newTask,
-      id: Date.now().toString(),
+  const [loadingTask, setLoadingTask] = useState(true);
+  const [loadingTaskDelete, setLoadingTaskDelete] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    fetchTasks()
+  }, [])
+
+  const fetchTasks = async () => {
+    setLoadingTask(true)
+    try {
+      const response = await getAllTasks()
+      setTasks(response.data.data)
+    } catch (error) {
+      toast.error("Failed to fetch tasks")
+    } finally {
+      setLoadingTask(false)
     }
-    setTasks((prev) => [...prev, task])
+  }
+
+
+  const addTask = () => {
+    fetchTasks()
   }
 
   const updateTask = (taskId: string, updates: Partial<Task>) => {
-    setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, ...updates } : task)))
+    setTasks((prev) => prev.map((task) => (task._id === taskId ? { ...task, ...updates } : task)))
   }
 
-  const deleteTask = (taskId: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== taskId))
+  const deleteTask = async (taskId: string) => {
+    setLoadingTaskDelete(true);
+    await deleteTaskMethod(taskId).then((response) => {
+      if (response.status === 200) {
+        toast.success("Task deleted successfully")
+        fetchTasks()
+      } else {
+        toast.error("Failed to delete task")
+      }
+    }).catch((error) => {
+      toast.error("Failed to delete task")
+    }).finally(() => {
+      setLoadingTaskDelete(false);
+      setIsNewTaskModalOpen(false)
+    })
   }
 
   const addBlog = (newBlog: Omit<Blog, "id" | "createdAt" | "updatedAt">) => {
@@ -179,18 +145,24 @@ export default function Home() {
     setIsCreatingBlog(false)
   }
 
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen)
+  }
+
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar currentView={currentView} onViewChange={setCurrentView} />
+      <Sidebar sidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} currentView={currentView} onViewChange={setCurrentView} />
 
       <div className="flex-1 flex flex-col">
         <Header
+          closeSidebar={handleCloseSidebar}
+          onViewChange={setCurrentView}
           onNewTask={() => setIsNewTaskModalOpen(true)}
           onNewBlog={currentView === "blogs" ? handleNewBlog : undefined}
           currentView={currentView}
         />
 
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-y-scroll">
           <AnimatePresence mode="wait">
             {currentView === "dashboard" && (
               <motion.div
@@ -212,7 +184,7 @@ export default function Home() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <TaskList tasks={tasks} onTaskClick={setSelectedTask} onTaskUpdate={updateTask} />
+                <TaskList loading={loadingTask} tasks={tasks} onTaskClick={setSelectedTask} onTaskUpdate={updateTask} />
               </motion.div>
             )}
 
@@ -264,9 +236,9 @@ export default function Home() {
           <TaskDetailModal
             task={selectedTask}
             onClose={() => setSelectedTask(null)}
-            onUpdate={(updates) => updateTask(selectedTask.id, updates)}
+            onUpdate={(updates) => updateTask(selectedTask._id, updates)}
             onDelete={() => {
-              deleteTask(selectedTask.id)
+              deleteTask(selectedTask._id)
               setSelectedTask(null)
             }}
           />

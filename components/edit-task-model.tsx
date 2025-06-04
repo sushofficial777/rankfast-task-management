@@ -1,46 +1,45 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { X, Plus, Calendar, Bell, Flag, Tag, User } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import type { Task } from "@/types/task";
-import DatePicker from "@/components/elements/custom/DatePicker"
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { X, Plus, Calendar, Bell, Flag, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import moment from "moment";
+import DatePicker from "@/components/elements/custom/DatePicker";
 import GenericSelect from "@/components/elements/custom/Select";
-import { hourOptions } from "@/lib/common.utils"
-import { createTask } from "@/api/apiService"
+import { hourOptions } from "@/lib/common.utils";
+import { updateTaskMethod, getAllUsersForSelectMethod } from "@/api/apiService";
 import { toast } from "sonner";
+import type { Task } from "@/types/task";
 
-import { getAllUsersForSelectMethod } from "@/api/apiService";
-
-interface NewTaskModalProps {
-  onClose: () => void
-  onSubmit: (task: Omit<Task, "id">) => void
+interface EditTaskModalProps {
+  onClose: () => void;
+  onSubmit: (updated: Task) => void;
+  task: Task;
 }
 
 interface UserOption {
   value: string;
   label: string;
-};
+}
 
-export function NewTaskModal({ onClose, onSubmit }: NewTaskModalProps) {
+export default function EditTaskModal({ onClose, onSubmit, task }: EditTaskModalProps) {
 
-  const [title, setTitle] = useState("")
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [priority, setPriority] = useState<"High" | "Medium" | "Low">("Medium")
-  const [description, setDescription] = useState("")
-  const [notification, setNotification] = useState(0);
-  const [assignee, setAssignee] = useState("");
+  const [title, setTitle] = useState(task.title || "");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date(task.dueDate));
+  const [priority, setPriority] = useState<"High" | "Medium" | "Low">(task.priority);
+  const [description, setDescription] = useState(task.description || "");
+  const [notification, setNotification] = useState(task.notifications || 0);
+  const [assignee, setAssignee] = useState(task.assignee?.id._id || "");
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState<UserOption[]>([]); // Add this state variable to store the users inf
+  const [users, setUsers] = useState<UserOption[]>([]);
+  const [open, setOpen] = useState(false);
 
   const fetchUsers = async () => {
     try {
       const response = await getAllUsersForSelectMethod();
-
       setUsers(response.data.data);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -49,45 +48,35 @@ export function NewTaskModal({ onClose, onSubmit }: NewTaskModalProps) {
 
   useEffect(() => {
     fetchUsers();
-  }, [])
+  }, []);
 
-  const [open, setOpen] = useState(false);
-
-  const handleSubmit = async () => {
-    if (!title.trim() || loading) return
+  const handleUpdate = async () => {
+    if (!title.trim() || loading) return;
 
     try {
-      setLoading(true)
-      const newTask: any = {
+      setLoading(true);
+      const updatedTask = {
         title: title.trim(),
         dueDate: moment(selectedDate).format("YYYY-MM-DD"),
-        priority: priority || "Medium",
-        stage: "0",
-        team: "General",
-        assignee: {
-          name: users.find(u => u.value === assignee)?.label || "Me",
-          id: assignee || "0"
-        },
-        completed: false,
+        priority,
         description,
         notifications: notification,
-      }
+        assignee: {
+          name: users.find((u:any) => u.value === assignee)?.label || task.assignee?.name || "Me",
+          id: assignee || task.assignee?.id || "0",
+        },
+      };
 
-      const response = await createTask(newTask)
-      onSubmit(response.data)
-      toast.success("Task created successfully")
-      onClose()
+      const response = await updateTaskMethod(task._id, updatedTask);
+      onSubmit(response.data);
+      toast.success("Task updated successfully");
+      onClose();
     } catch (error) {
-      toast.error("Failed to create task. Please try again.")
-
+      toast.error("Failed to update task. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
-
-
-
+  };
 
   return (
     <motion.div
@@ -123,7 +112,7 @@ export function NewTaskModal({ onClose, onSubmit }: NewTaskModalProps) {
         </div>
 
         <div className="space-y-4">
-          {/* Date */}
+          {/* Due Date */}
           <div className="flex items-center gap-3">
             <Calendar className="w-4 h-4 text-gray-500 shrink-0" />
             <span className="text-sm font-medium text-gray-700 w-24">Due date</span>
@@ -134,7 +123,7 @@ export function NewTaskModal({ onClose, onSubmit }: NewTaskModalProps) {
               <Button onClick={() => setOpen(!open)} size="sm" variant="outline">
                 <Plus className="w-4 h-4" />
               </Button>
-              <DatePicker
+             <DatePicker
                 className="absolute top-full right-0  z-50"
                 open={open}
                 setOpen={setOpen}
@@ -150,7 +139,7 @@ export function NewTaskModal({ onClose, onSubmit }: NewTaskModalProps) {
             <GenericSelect
               options={hourOptions(10)}
               placeholder="Minutes"
-              onSelect={(val) => setNotification(Number(val))}
+              onSelect={(val:any) => setNotification(Number(val))}
               className="w-[140px] h-8"
             />
           </div>
@@ -166,7 +155,7 @@ export function NewTaskModal({ onClose, onSubmit }: NewTaskModalProps) {
                   variant={priority === p ? "default" : "outline"}
                   size="sm"
                   onClick={() => setPriority(p as any)}
-                  className={`rounded-full px-4 ${priority === p ? "bg-yellow-400 text-white font-semibold" : ""}`}
+                  className={`rounded-full px-4 ${priority === p ? "bg-yellow-400 text-black font-semibold" : ""}`}
                 >
                   {p}
                 </Button>
@@ -181,7 +170,8 @@ export function NewTaskModal({ onClose, onSubmit }: NewTaskModalProps) {
             <GenericSelect
               options={users}
               placeholder="Select user"
-              onSelect={(val) => setAssignee(val)}
+              onSelect={(val:any) => setAssignee(val)}
+             
               className="w-[160px] h-8"
             />
           </div>
@@ -190,7 +180,7 @@ export function NewTaskModal({ onClose, onSubmit }: NewTaskModalProps) {
           <div>
             <label className="text-sm font-medium text-gray-700 mb-1 block">Description</label>
             <Textarea
-              placeholder="Add a description..."
+              placeholder="Edit the description..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="min-h-[100px] resize-none text-sm"
@@ -201,14 +191,14 @@ export function NewTaskModal({ onClose, onSubmit }: NewTaskModalProps) {
         {/* Submit Button */}
         <div className="mt-6 flex justify-end">
           <Button
-            onClick={handleSubmit}
+            onClick={handleUpdate}
             disabled={!title.trim() || loading}
             className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2 rounded-lg"
           >
-            {loading ? "Creating..." : "Create Task"}
+            {loading ? "Updating..." : "Update Task"}
           </Button>
         </div>
       </motion.div>
     </motion.div>
-  )
+  );
 }

@@ -62,8 +62,8 @@ const config: Config = {
           ring: "hsl(var(--sidebar-ring))",
         },
         yellow: {
-          400: "#F5D547",
-          500: "#F2D03A",
+          400: "#948EFF",
+          500: "#6c63ff",
         },
       },
       borderRadius: {
